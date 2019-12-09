@@ -1,0 +1,28 @@
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'application'
+
+group 'kis'
+
+mainClassName = 'kis.Main'
+
+sourceSets {
+    main {
+        java { srcDirs = [] }
+        groovy { srcDirs += ['src/main/java'] }
+    }
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.8'
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64'
+    
+    testCompile 'junit:junit:4.12'
+}
