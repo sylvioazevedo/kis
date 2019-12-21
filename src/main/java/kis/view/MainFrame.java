@@ -5,7 +5,12 @@
  */
 package kis.view;
 
+import org.bouncycastle.crypto.CryptoException;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -16,8 +21,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import kis.controller.FileController;
+import kis.controller.Criptography;
 
 /**
  *
@@ -52,15 +60,120 @@ public class MainFrame extends javax.swing.JFrame {
     }
     
     private void cleanUp() {
-    this.file = null;
-    this.jTextFieldPath.setText("");
-    this.jLabelDataSize.setText("0 bytes.");
-    this.jLabelDataType.setText("Unknown.");
-    this.jLabelCreated.setText("Unkown.");
-    this.jLabelModified.setText("Unkown.");
-    this.jLabelStatus.setText("Encode");
-    this.jCheckBoxRemoveOldFile.setSelected(false);
-  }
+        this.file = null;
+        this.jTextFieldPath.setText("");
+        this.jLabelDataSize.setText("0 bytes.");
+        this.jLabelDataType.setText("Unknown.");
+        this.jLabelCreated.setText("Unkown.");
+        this.jLabelModified.setText("Unkown.");
+        this.jLabelStatus.setText("Encode");
+        this.jCheckBoxRemoveOldFile.setSelected(false);
+    }
+    
+    public void encodeFile(String password) {
+        
+        int read = -1;
+        byte[] buffer = new byte[1024];
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try {
+            FileInputStream fis = new FileInputStream(this.file);
+
+            while ((read = fis.read(buffer)) != -1) {
+                baos.write(buffer, 0, read);
+            }
+            fis.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        String cipherData = null;
+        try {
+            cipherData = Criptography.encode(baos.toByteArray(), password);
+        } catch (CryptoException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        String newFileName = ((this.lastDirPath != null) ? this.lastDirPath : "") + FileController.getName(this.file) + ".kis";
+
+        try {
+            FileOutputStream fos = new FileOutputStream(newFileName);
+            fos.write(FileController.getExtension(this.file).getBytes());
+            fos.write(cipherData.getBytes());
+            fos.close();
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        if (this.jCheckBoxRemoveOldFile.isSelected() && !this.file.delete()) {
+            JOptionPane.showMessageDialog(this, "A problem has occurred when deleting file :");
+        }
+
+        cleanUp();
+
+        JOptionPane.showMessageDialog(this, "File has been successfully encoded.", "Message", 1);
+    }
+
+    public void decodeFile(String password) {
+        int read = -1;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        String ext = "";
+
+        try {
+            FileInputStream fis = new FileInputStream(this.file);
+
+            byte[] buffer = new byte[3];
+
+            if (fis.read(buffer) != 3) {
+                JOptionPane.showMessageDialog(this, "Problems have occurred reading file.", "Attention", 2);
+
+                return;
+            }
+            ext = new String(buffer);
+
+            buffer = new byte[1024];
+
+            while ((read = fis.read(buffer)) != -1) {
+                baos.write(buffer, 0, read);
+            }
+            fis.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        byte[] plainData = null;
+        try {
+            plainData = Criptography.decode(new String(baos.toByteArray()), password);
+        } catch (CryptoException ex) {
+            JOptionPane.showMessageDialog(this, "File could not be decoded, pehaps a wrong password.", "Attention", 0);
+
+            return;
+        }
+
+        String newFileName = ((this.lastDirPath != null) ? this.lastDirPath : "") + FileController.getName(this.file) + "." + ext;
+
+        try {
+            FileOutputStream fos = new FileOutputStream(newFileName);
+            fos.write(plainData);
+            fos.close();
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        if (this.jCheckBoxRemoveOldFile.isSelected()
+                && !this.file.delete()) {
+            JOptionPane.showMessageDialog(this, "A problem has occurred when deleting file :");
+        }
+
+        cleanUp();
+
+        JOptionPane.showMessageDialog(this, "File has been successfully decoded.", "Message", 1);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -71,27 +184,30 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        jPanelFilePath = new javax.swing.JPanel();
         jTextFieldPath = new javax.swing.JTextField();
         jButtonBrowse = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        jPanelFileInfo = new javax.swing.JPanel();
+        jLabelSizeText = new javax.swing.JLabel();
+        jLabelTypeText = new javax.swing.JLabel();
+        jLabelModifeidText = new javax.swing.JLabel();
         jLabelDataSize = new javax.swing.JLabel();
         jLabelDataType = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        jLabelCreatedText = new javax.swing.JLabel();
         jLabelCreated = new javax.swing.JLabel();
         jLabelModified = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
         jLabelStatus = new javax.swing.JLabel();
         jCheckBoxRemoveOldFile = new javax.swing.JCheckBox();
         jButtonExecute = new javax.swing.JButton();
         jButtonCancel = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("KIS - Interface");
+        setAlwaysOnTop(true);
+        setResizable(false);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "File path"));
+        jPanelFilePath.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "File path"));
 
         jButtonBrowse.setText("...");
         jButtonBrowse.addActionListener(new java.awt.event.ActionListener() {
@@ -100,33 +216,33 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanelFilePathLayout = new javax.swing.GroupLayout(jPanelFilePath);
+        jPanelFilePath.setLayout(jPanelFilePathLayout);
+        jPanelFilePathLayout.setHorizontalGroup(
+            jPanelFilePathLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelFilePathLayout.createSequentialGroup()
                 .addComponent(jTextFieldPath)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonBrowse, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        jPanelFilePathLayout.setVerticalGroup(
+            jPanelFilePathLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelFilePathLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanelFilePathLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextFieldPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonBrowse, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(9, Short.MAX_VALUE))
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "File information"));
+        jPanelFileInfo.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "File information"));
 
-        jLabel1.setText("Size");
+        jLabelSizeText.setText("Size");
 
-        jLabel2.setText("Type");
+        jLabelTypeText.setText("Type");
 
-        jLabel3.setText("Modified");
+        jLabelModifeidText.setText("Modified");
 
         jLabelDataSize.setForeground(new java.awt.Color(0, 51, 204));
         jLabelDataSize.setText("0 bytes");
@@ -134,7 +250,7 @@ public class MainFrame extends javax.swing.JFrame {
         jLabelDataType.setForeground(new java.awt.Color(0, 51, 204));
         jLabelDataType.setText("Unknown");
 
-        jLabel6.setText("Created");
+        jLabelCreatedText.setText("Created");
 
         jLabelCreated.setForeground(new java.awt.Color(0, 51, 204));
         jLabelCreated.setText("Unknown");
@@ -142,57 +258,62 @@ public class MainFrame extends javax.swing.JFrame {
         jLabelModified.setForeground(new java.awt.Color(0, 51, 204));
         jLabelModified.setText("Unknown");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanelFileInfoLayout = new javax.swing.GroupLayout(jPanelFileInfo);
+        jPanelFileInfo.setLayout(jPanelFileInfoLayout);
+        jPanelFileInfoLayout.setHorizontalGroup(
+            jPanelFileInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelFileInfoLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
-                .addGap(23, 23, 23)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabelDataSize)
-                    .addComponent(jLabelDataType))
-                .addGap(83, 83, 83)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
+                .addGroup(jPanelFileInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanelFileInfoLayout.createSequentialGroup()
+                        .addGroup(jPanelFileInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabelSizeText)
+                            .addComponent(jLabelTypeText))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanelFileInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabelDataType)
+                            .addComponent(jLabelDataSize)))
+                    .addGroup(jPanelFileInfoLayout.createSequentialGroup()
+                        .addComponent(jLabelCreatedText)
                         .addGap(18, 18, 18)
                         .addComponent(jLabelCreated))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel3)
+                    .addGroup(jPanelFileInfoLayout.createSequentialGroup()
+                        .addComponent(jLabelModifeidText)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabelModified)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabelDataSize)
-                    .addComponent(jLabel6)
+        jPanelFileInfoLayout.setVerticalGroup(
+            jPanelFileInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelFileInfoLayout.createSequentialGroup()
+                .addGroup(jPanelFileInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelSizeText)
+                    .addComponent(jLabelDataSize))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelFileInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelTypeText)
+                    .addComponent(jLabelDataType))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelFileInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelCreatedText)
                     .addComponent(jLabelCreated))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel2)
-                        .addComponent(jLabel3)
-                        .addComponent(jLabelDataType))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabelModified)
-                        .addContainerGap())))
+                .addGroup(jPanelFileInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelModifeidText)
+                    .addComponent(jLabelModified, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        jTextField1.setText("Operation");
 
         jLabelStatus.setText("Encode");
 
         jCheckBoxRemoveOldFile.setText("Remove old file");
 
         jButtonExecute.setText("Execute");
+        jButtonExecute.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonExecuteActionPerformed(evt);
+            }
+        });
 
         jButtonCancel.setText("Cancel");
         jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
@@ -201,19 +322,22 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        jLabel4.setText("Operation:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanelFilePath, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanelFileInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addContainerGap()
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabelStatus)
-                .addGap(69, 69, 69)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 173, Short.MAX_VALUE)
                 .addComponent(jCheckBoxRemoveOldFile)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonExecute)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonCancel)
@@ -222,17 +346,16 @@ public class MainFrame extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanelFilePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanelFileInfo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabelStatus)
                     .addComponent(jCheckBoxRemoveOldFile)
                     .addComponent(jButtonExecute)
-                    .addComponent(jButtonCancel))
-                .addGap(0, 10, Short.MAX_VALUE))
+                    .addComponent(jButtonCancel)
+                    .addComponent(jLabel4)))
         );
 
         pack();
@@ -252,11 +375,36 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void jButtonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCancelActionPerformed
         
-        this.setVisible(false);
-        this.dispose();
         
-        System.exit(0);
+        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this, "Do you really want to exit?", "Confirmation", JOptionPane.YES_NO_OPTION)) {
+            this.setVisible(false);
+            this.dispose();
+
+            System.exit(0);
+        }
     }//GEN-LAST:event_jButtonCancelActionPerformed
+
+    private void jButtonExecuteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExecuteActionPerformed
+        
+        if (this.file == null || !this.file.isFile()) {
+            JOptionPane.showMessageDialog(this, "No files has been defined. Please inform one.", "Attention", 2);
+            this.jTextFieldPath.grabFocus();
+
+            return;
+        }
+        if (!this.decode) {
+            EncodePasswordFrame encodeForm = new EncodePasswordFrame(this);
+            encodeForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            encodeForm.setVisible(true);
+            encodeForm.requestFocus();
+            encodeForm.setAlwaysOnTop(true); 
+        } 
+        else {
+            DecodePasswordFrame decodeForm = new DecodePasswordFrame(this);
+            decodeForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            decodeForm.setVisible(true);
+        }
+    }//GEN-LAST:event_jButtonExecuteActionPerformed
 
     /**
      * @param args the command line arguments
@@ -268,18 +416,18 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButtonCancel;
     private javax.swing.JButton jButtonExecute;
     private javax.swing.JCheckBox jCheckBoxRemoveOldFile;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabelCreated;
+    private javax.swing.JLabel jLabelCreatedText;
     private javax.swing.JLabel jLabelDataSize;
     private javax.swing.JLabel jLabelDataType;
+    private javax.swing.JLabel jLabelModifeidText;
     private javax.swing.JLabel jLabelModified;
+    private javax.swing.JLabel jLabelSizeText;
     private javax.swing.JLabel jLabelStatus;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel jLabelTypeText;
+    private javax.swing.JPanel jPanelFileInfo;
+    private javax.swing.JPanel jPanelFilePath;
     private javax.swing.JTextField jTextFieldPath;
     // End of variables declaration//GEN-END:variables
 
@@ -313,9 +461,9 @@ public class MainFrame extends javax.swing.JFrame {
             this.jLabelDataType.setText(FileController.identifyFile(this.file));
             this.jLabelModified.setText((new SimpleDateFormat("MM/dd/yyyy - HH:mm")).format(new Date(this.file.lastModified())));
             this.jLabelCreated.setText((new SimpleDateFormat("MM/dd/yyyy - HH:mm")).format(new Date(fileTime.toMillis())));
-        } catch (IOException ex) {
+        } 
+        catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 }

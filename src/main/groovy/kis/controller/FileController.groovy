@@ -61,7 +61,7 @@ class FileController {
                 return "A MPEG audio file (mp3)."
                 
             default:
-                 return "Unknown file type ${ext}."
+                 return "Unknown file type [${ext}]."
         }
     }
 

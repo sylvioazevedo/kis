@@ -12,6 +12,7 @@ import org.bouncycastle.crypto.engines.AESEngine
 import org.bouncycastle.crypto.modes.CBCBlockCipher
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher
 import org.bouncycastle.crypto.params.KeyParameter
+import org.bouncycastle.util.encoders.Base64
 
 
 /**
@@ -26,7 +27,9 @@ class Criptography {
         
         BufferedBlockCipher encoder = new PaddedBufferedBlockCipher(new CBCBlockCipher(ngn))
         
-        def key = String.format("%-24s", new Object[ pwd ]).bytes
+        pwd = pwd.length() > 24? pwd[0..23]: pwd
+        
+        def key = String.format("%-24s", pwd).bytes
         
         encoder.init(true, new KeyParameter(key))
         
@@ -49,7 +52,10 @@ class Criptography {
         
         BufferedBlockCipher decoder = new PaddedBufferedBlockCipher(new CBCBlockCipher(ngn))
     
-        def key = String.format("%-24s", new Object[pwd]).bytes
+        pwd = pwd.length() > 24? pwd[0..23]: pwd
+        
+        def key = String.format("%-24s", pwd).bytes
+        
         byte[] clearCipher = Base64.decode(cipher)
 
         decoder.init(false, new KeyParameter(key))
