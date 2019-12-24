@@ -5,11 +5,15 @@
  */
 package kis.view;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author sazevedo
  */
 public class DecodePasswordFrame extends javax.swing.JFrame {
+    
+    private MainFrame mf;
 
     /**
      * Creates new form DecodePasswordFrame
@@ -18,8 +22,16 @@ public class DecodePasswordFrame extends javax.swing.JFrame {
         initComponents();
     }
 
-    DecodePasswordFrame(MainFrame aThis) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public DecodePasswordFrame(MainFrame mf) {
+        
+        // call first constructor
+        this();
+        
+        // keep references inside
+        this.mf = mf;
+                
+        this.setLocationRelativeTo(this.mf);
+                
     }
 
     /**
@@ -31,57 +43,109 @@ public class DecodePasswordFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jPanelAuthentication = new javax.swing.JPanel();
+        jLabelPassword = new javax.swing.JLabel();
+        jPasswordFieldPassword = new javax.swing.JPasswordField();
+        jButtonDecode = new javax.swing.JButton();
+        jButtonCancel = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        jPanelAuthentication.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Authentication"));
+
+        jLabelPassword.setText("Password");
+
+        javax.swing.GroupLayout jPanelAuthenticationLayout = new javax.swing.GroupLayout(jPanelAuthentication);
+        jPanelAuthentication.setLayout(jPanelAuthenticationLayout);
+        jPanelAuthenticationLayout.setHorizontalGroup(
+            jPanelAuthenticationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelAuthenticationLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabelPassword)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPasswordFieldPassword)
+                .addContainerGap())
+        );
+        jPanelAuthenticationLayout.setVerticalGroup(
+            jPanelAuthenticationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelAuthenticationLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelAuthenticationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelPassword)
+                    .addComponent(jPasswordFieldPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(11, Short.MAX_VALUE))
+        );
+
+        jButtonDecode.setMnemonic('D');
+        jButtonDecode.setText("Decode");
+        jButtonDecode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDecodeActionPerformed(evt);
+            }
+        });
+
+        jButtonCancel.setText("Cancel");
+        jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCancelActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jPanelAuthentication, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(137, Short.MAX_VALUE)
+                .addComponent(jButtonDecode)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonCancel)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanelAuthentication, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonDecode)
+                    .addComponent(jButtonCancel)))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DecodePasswordFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DecodePasswordFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DecodePasswordFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DecodePasswordFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void jButtonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCancelActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_jButtonCancelActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new DecodePasswordFrame().setVisible(true);
-            }
-        });
-    }
+    private void jButtonDecodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDecodeActionPerformed
+        
+        String password = new String(this.jPasswordFieldPassword.getPassword());
+        
+        if (password == null || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "A password is needed.", "Attention", 2);
+            this.jPasswordFieldPassword.grabFocus();
+            return;
+        }
+
+        if (password.length() > 24) {
+            JOptionPane.showMessageDialog(this, "The password size must be less than 24 characters.");
+            this.jPasswordFieldPassword.grabFocus();
+            return;
+        }
+
+        this.mf.decodeFile(password);
+        
+        dispose();
+    }//GEN-LAST:event_jButtonDecodeActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonCancel;
+    private javax.swing.JButton jButtonDecode;
+    private javax.swing.JLabel jLabelPassword;
+    private javax.swing.JPanel jPanelAuthentication;
+    private javax.swing.JPasswordField jPasswordFieldPassword;
     // End of variables declaration//GEN-END:variables
 }

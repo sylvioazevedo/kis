@@ -57,10 +57,6 @@ public class EncodePasswordFrame extends javax.swing.JFrame {
 
         jLabelConfirmation.setText("Confirmation");
 
-        jPasswordFieldPassword.setText("jPasswordField1");
-
-        jPasswordFieldConfirmation.setText("jPasswordField2");
-
         javax.swing.GroupLayout jPanelAuhtenticationLayout = new javax.swing.GroupLayout(jPanelAuhtentication);
         jPanelAuhtentication.setLayout(jPanelAuhtenticationLayout);
         jPanelAuhtenticationLayout.setHorizontalGroup(

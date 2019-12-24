@@ -101,6 +101,7 @@ public class MainFrame extends javax.swing.JFrame {
         try {
             FileOutputStream fos = new FileOutputStream(newFileName);
             fos.write(FileController.getExtension(this.file).getBytes());
+            fos.write("#".getBytes());
             fos.write(cipherData.getBytes());
             fos.close();
         } catch (IOException ex) {
@@ -120,21 +121,11 @@ public class MainFrame extends javax.swing.JFrame {
         int read = -1;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        String ext = "";
+        
 
         try {
             FileInputStream fis = new FileInputStream(this.file);
-
-            byte[] buffer = new byte[3];
-
-            if (fis.read(buffer) != 3) {
-                JOptionPane.showMessageDialog(this, "Problems have occurred reading file.", "Attention", 2);
-
-                return;
-            }
-            ext = new String(buffer);
-
-            buffer = new byte[1024];
+            byte[] buffer = new byte[1024];
 
             while ((read = fis.read(buffer)) != -1) {
                 baos.write(buffer, 0, read);
@@ -145,10 +136,16 @@ public class MainFrame extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        String parts[] = new String(baos.toByteArray()).split("#");
+        
+        String ext = parts[0];
+        String ciphered = parts[1];
+            
 
         byte[] plainData = null;
         try {
-            plainData = Criptography.decode(new String(baos.toByteArray()), password);
+            plainData = Criptography.decode(ciphered, password);
         } catch (CryptoException ex) {
             JOptionPane.showMessageDialog(this, "File could not be decoded, pehaps a wrong password.", "Attention", 0);
 
@@ -403,6 +400,8 @@ public class MainFrame extends javax.swing.JFrame {
             DecodePasswordFrame decodeForm = new DecodePasswordFrame(this);
             decodeForm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             decodeForm.setVisible(true);
+            decodeForm.requestFocus();
+            decodeForm.setAlwaysOnTop(true); 
         }
     }//GEN-LAST:event_jButtonExecuteActionPerformed
 
